@@ -1,5 +1,8 @@
 import type { NormalizedChatType } from "../channels/chat-type.js";
-import type { AgentElevatedAllowFromConfig, SessionSendPolicyAction } from "./types.base.js";
+import type {
+  AgentElevatedAllowFromConfig,
+  SessionSendPolicyAction,
+} from "./types.base.js";
 
 export type MediaUnderstandingScopeMatch = {
   channel?: string;
@@ -158,7 +161,10 @@ export type GroupToolPolicyConfig = {
   deny?: string[];
 };
 
-export type GroupToolPolicyBySenderConfig = Record<string, GroupToolPolicyConfig>;
+export type GroupToolPolicyBySenderConfig = Record<
+  string,
+  GroupToolPolicyConfig
+>;
 
 export type ExecToolConfig = {
   /** Exec host routing (default: sandbox). */
@@ -446,5 +452,12 @@ export type ToolsConfig = {
       allow?: string[];
       deny?: string[];
     };
+  };
+  /** Sokosumi marketplace integration for hiring sub-agents. */
+  sokosumi?: {
+    /** Sokosumi API endpoint (default: https://api.sokosumi.com/v1). */
+    apiEndpoint?: string;
+    /** Sokosumi API key (or set SOKOSUMI_API_KEY env var). */
+    apiKey?: string;
   };
 };
