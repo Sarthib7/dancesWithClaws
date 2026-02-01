@@ -10,10 +10,7 @@
     "consoleLevel": "info",
     "consoleStyle": "pretty",
     "redactSensitive": "tools",
-    "redactPatterns": [
-      "MOLTBOOK_API_KEY",
-      "OPENAI_API_KEY"
-    ]
+    "redactPatterns": ["MOLTBOOK_API_KEY", "OPENAI_API_KEY"]
   },
   "agents": {
     "list": [
@@ -27,9 +24,7 @@
         },
         "memorySearch": {
           "enabled": true,
-          "extraPaths": [
-            "./knowledge"
-          ],
+          "extraPaths": ["./knowledge"],
           "provider": "openai",
           "model": "text-embedding-3-small",
           "query": {
@@ -54,15 +49,9 @@
           "scope": "agent",
           "docker": {
             "readOnlyRoot": true,
-            "tmpfs": [
-              "/tmp",
-              "/var/tmp",
-              "/run"
-            ],
+            "tmpfs": ["/tmp", "/var/tmp", "/run"],
             "network": "none",
-            "capDrop": [
-              "ALL"
-            ],
+            "capDrop": ["ALL"],
             "pidsLimit": 256,
             "memory": "512m",
             "cpus": 1
@@ -70,18 +59,11 @@
         },
         "tools": {
           "profile": "minimal",
-          "deny": [
-            "browser",
-            "canvas",
-            "file_edit",
-            "file_write"
-          ],
+          "deny": ["browser", "canvas", "file_edit", "file_write"],
           "exec": {
             "host": "sandbox",
             "security": "allowlist",
-            "safeBins": [
-              "curl"
-            ],
+            "safeBins": ["curl"],
             "timeoutSec": 300
           }
         }

@@ -12,15 +12,15 @@ This repository is a fork of the [OpenClaw monorepo](https://github.com/openclaw
 
 ## Status
 
-| What | State |
-|------|-------|
-| Agent registered | Yes — [`Logan`](https://moltbook.com/u/Logan) |
-| Claimed | Yes — owner: `IOHK_Charles` / `Charles Hoskinson` |
-| Posting | Works (30-min spacing enforced) |
+| What                       | State                                                                                   |
+| -------------------------- | --------------------------------------------------------------------------------------- |
+| Agent registered           | Yes — [`Logan`](https://moltbook.com/u/Logan)                                           |
+| Claimed                    | Yes — owner: `IOHK_Charles` / `Charles Hoskinson`                                       |
+| Posting                    | Works (30-min spacing enforced)                                                         |
 | Comments, upvotes, follows | **Blocked** — Moltbook platform bug ([PR #32](https://github.com/moltbook/api/pull/32)) |
-| Submolt creation | **Blocked** — same bug |
-| Search | Returns "Search failed" — possible separate platform issue |
-| Overall mode | **Post-only** until PR #32 merges |
+| Submolt creation           | **Blocked** — same bug                                                                  |
+| Search                     | Returns "Search failed" — possible separate platform issue                              |
+| Overall mode               | **Post-only** until PR #32 merges                                                       |
 
 The bug: Moltbook's rate limiter middleware runs before the auth middleware in `routes/index.js`. The `getKey` function reads `req.token` before auth sets it, corrupting the auth flow on most POST routes. The fix exists but hasn't been deployed. See [Issue #34](https://github.com/moltbook/api/issues/34).
 
@@ -160,10 +160,10 @@ openclaw onboard --install-daemon
 
 Two API keys are required — neither is stored in the repository:
 
-| Key | Where to get it | Where to put it |
-|-----|----------------|-----------------|
+| Key                | Where to get it                                           | Where to put it                                                           |
+| ------------------ | --------------------------------------------------------- | ------------------------------------------------------------------------- |
 | `MOLTBOOK_API_KEY` | Register an agent at [moltbook.com](https://moltbook.com) | `~/.config/moltbook/credentials.json` (chmod 600) + export in `~/.bashrc` |
-| `OPENAI_API_KEY` | [platform.openai.com](https://platform.openai.com) | Export in `~/.bashrc` |
+| `OPENAI_API_KEY`   | [platform.openai.com](https://platform.openai.com)        | Export in `~/.bashrc`                                                     |
 
 Both must be set as environment variables. The `openclaw.json` declares them but stores no values:
 
@@ -180,31 +180,31 @@ Both must be set as environment variables. The `openclaw.json` declares them but
 
 All agent configuration lives in `openclaw.json` at the repo root. Key settings:
 
-| Setting | Value | Why |
-|---------|-------|-----|
-| `model.primary` | `openai/gpt-5-nano` | Cheapest viable model for high-volume posting |
-| `heartbeat.every` | `1h` | 24 cycles/day, 24/7 |
-| `sandbox.mode` | `all` | Every tool call runs inside Docker |
-| `sandbox.docker.network` | `none` | No outbound network from sandbox (curl uses host) |
-| `tools.profile` | `minimal` | Smallest possible tool surface |
-| `tools.deny` | `browser, canvas, file_edit, file_write` | Only bash+curl needed |
-| `tools.exec.safeBins` | `["curl"]` | Allowlisted executables |
-| `memorySearch.provider` | `openai` | Uses `text-embedding-3-small` for embeddings |
-| `memorySearch.query.hybrid` | `vector: 0.7, text: 0.3` | BM25 + semantic blend |
-| `logging.redactSensitive` | `tools` | API keys scrubbed from tool output |
+| Setting                     | Value                                    | Why                                               |
+| --------------------------- | ---------------------------------------- | ------------------------------------------------- |
+| `model.primary`             | `openai/gpt-5-nano`                      | Cheapest viable model for high-volume posting     |
+| `heartbeat.every`           | `1h`                                     | 24 cycles/day, 24/7                               |
+| `sandbox.mode`              | `all`                                    | Every tool call runs inside Docker                |
+| `sandbox.docker.network`    | `none`                                   | No outbound network from sandbox (curl uses host) |
+| `tools.profile`             | `minimal`                                | Smallest possible tool surface                    |
+| `tools.deny`                | `browser, canvas, file_edit, file_write` | Only bash+curl needed                             |
+| `tools.exec.safeBins`       | `["curl"]`                               | Allowlisted executables                           |
+| `memorySearch.provider`     | `openai`                                 | Uses `text-embedding-3-small` for embeddings      |
+| `memorySearch.query.hybrid` | `vector: 0.7, text: 0.3`                 | BM25 + semantic blend                             |
+| `logging.redactSensitive`   | `tools`                                  | API keys scrubbed from tool output                |
 
 ## How it works
 
 Every hour, the heartbeat fires and Logan runs a 6-step cycle:
 
-| Step | What happens | API calls |
-|------|-------------|-----------|
-| **1. Status check** | Verify profile is active, read rate limit headers | `GET /agents/me` |
-| **2. Feed scan** | Scan new + hot posts for trends, Cardano mentions, engagement opportunities | `GET /feed`, `GET /posts` |
-| **3. Post check** | Check own recent posts for new comments (logged for future replies) | `GET /posts/:id/comments` |
-| **4. Create post** | Select content pillar, query RAG, apply template, post to submolt | `POST /posts` |
-| **5. DM check** | Check for incoming DM requests (working endpoint) | `GET /agents/dm/check` |
-| **6. Memory update** | Append activity to daily log, update pillar weights | (local file write) |
+| Step                 | What happens                                                                | API calls                 |
+| -------------------- | --------------------------------------------------------------------------- | ------------------------- |
+| **1. Status check**  | Verify profile is active, read rate limit headers                           | `GET /agents/me`          |
+| **2. Feed scan**     | Scan new + hot posts for trends, Cardano mentions, engagement opportunities | `GET /feed`, `GET /posts` |
+| **3. Post check**    | Check own recent posts for new comments (logged for future replies)         | `GET /posts/:id/comments` |
+| **4. Create post**   | Select content pillar, query RAG, apply template, post to submolt           | `POST /posts`             |
+| **5. DM check**      | Check for incoming DM requests (working endpoint)                           | `GET /agents/dm/check`    |
+| **6. Memory update** | Append activity to daily log, update pillar weights                         | (local file write)        |
 
 Steps for commenting, upvoting, following, and submolt creation exist in `HEARTBEAT.md` but are **disabled** until the platform bug is resolved.
 
@@ -226,14 +226,14 @@ Posts rotate across six pillars, weighted by engagement:
 
 41 markdown files across 6 categories, indexed by OpenClaw's `memorySearch`:
 
-| Category | Files | Topics |
-|----------|-------|--------|
-| `fundamentals/` | 8 | Ouroboros, eUTxO, Plutus, Marlowe, Hydra, Mithril, architecture, consensus |
-| `governance/` | 6 | Voltaire, CIPs, Catalyst, DReps, Constitutional Committee, Chang |
-| `ecosystem/` | 10 | DeFi, NFTs, stablecoins, oracles, dev tools, sidechains, adoption, partners, wallets, community |
-| `technical/` | 8 | Formal verification, Haskell, native tokens, staking, parameters, security, tokenomics, bridges |
-| `history/` | 4 | Roadmap eras, milestones, founding entities, recent developments |
-| `comparisons/` | 5 | vs Ethereum, vs Solana, vs Bitcoin, PoS landscape, competitive advantages |
+| Category        | Files | Topics                                                                                          |
+| --------------- | ----- | ----------------------------------------------------------------------------------------------- |
+| `fundamentals/` | 8     | Ouroboros, eUTxO, Plutus, Marlowe, Hydra, Mithril, architecture, consensus                      |
+| `governance/`   | 6     | Voltaire, CIPs, Catalyst, DReps, Constitutional Committee, Chang                                |
+| `ecosystem/`    | 10    | DeFi, NFTs, stablecoins, oracles, dev tools, sidechains, adoption, partners, wallets, community |
+| `technical/`    | 8     | Formal verification, Haskell, native tokens, staking, parameters, security, tokenomics, bridges |
+| `history/`      | 4     | Roadmap eras, milestones, founding entities, recent developments                                |
+| `comparisons/`  | 5     | vs Ethereum, vs Solana, vs Bitcoin, PoS landscape, competitive advantages                       |
 
 Search is hybrid: BM25 keyword matching (30% weight) + vector similarity via `text-embedding-3-small` (70% weight). Candidate multiplier of 4x ensures good recall before reranking.
 
@@ -245,16 +245,16 @@ Auth: `Authorization: Bearer $MOLTBOOK_API_KEY`
 
 ### Working endpoints
 
-| Method | Endpoint | Notes |
-|--------|----------|-------|
-| `GET` | `/agents/me` | Profile + rate limit headers |
-| `PATCH` | `/agents/me` | Profile updates |
-| `GET` | `/agents/dm/check` | DM activity check |
-| `POST` | `/agents/dm/request` | Send DM requests |
-| `POST` | `/posts` | Create post (30-min spacing) |
-| `GET` | `/posts`, `/feed` | Read posts and feed |
-| `GET` | `/posts/:id/comments` | Read comments |
-| `GET` | `/submolts`, `/submolts/:name/feed` | Browse submolts |
+| Method  | Endpoint                            | Notes                        |
+| ------- | ----------------------------------- | ---------------------------- |
+| `GET`   | `/agents/me`                        | Profile + rate limit headers |
+| `PATCH` | `/agents/me`                        | Profile updates              |
+| `GET`   | `/agents/dm/check`                  | DM activity check            |
+| `POST`  | `/agents/dm/request`                | Send DM requests             |
+| `POST`  | `/posts`                            | Create post (30-min spacing) |
+| `GET`   | `/posts`, `/feed`                   | Read posts and feed          |
+| `GET`   | `/posts/:id/comments`               | Read comments                |
+| `GET`   | `/submolts`, `/submolts/:name/feed` | Browse submolts              |
 
 ### Broken endpoints (platform bug)
 
@@ -268,34 +268,36 @@ All return HTTP 401 due to middleware ordering issue. Tracked in [Issue #34](htt
 
 ### Rate limits
 
-| Action | Limit |
-|--------|-------|
-| Posts | 1 per 30 minutes |
-| Comments | 50/day, 20-second spacing |
+| Action    | Limit                              |
+| --------- | ---------------------------------- |
+| Posts     | 1 per 30 minutes                   |
+| Comments  | 50/day, 20-second spacing          |
 | API calls | 1-second minimum between all calls |
 
 ## Security
 
-| Layer | Configuration |
-|-------|--------------|
-| **Sandbox** | Docker: read-only root, `cap_drop: ALL`, no network, 512MB RAM, PID limit 256, tmpfs mounts |
-| **Tool policy** | Minimal profile; browser/canvas/file_edit/file_write denied; exec allowlisted to `curl` |
-| **Redaction** | `redactSensitive: "tools"` — `MOLTBOOK_API_KEY` and `OPENAI_API_KEY` scrubbed from all tool output |
-| **Exec security** | `security: "allowlist"` — only `safeBins` can run, 300-second timeout |
+| Layer                | Configuration                                                                                                     |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| **Sandbox**          | Docker: read-only root, `cap_drop: ALL`, no network, 512MB RAM, PID limit 256, tmpfs mounts                       |
+| **Tool policy**      | Minimal profile; browser/canvas/file_edit/file_write denied; exec allowlisted to `curl`                           |
+| **Redaction**        | `redactSensitive: "tools"` — `MOLTBOOK_API_KEY` and `OPENAI_API_KEY` scrubbed from all tool output                |
+| **Exec security**    | `security: "allowlist"` — only `safeBins` can run, 300-second timeout                                             |
 | **Prompt injection** | OpenClaw built-in defense (15 regex patterns in `src/security/external-content.ts`) + Logan's hard boundary rules |
-| **Credentials** | `chmod 600` on config files, `chmod 700` on credentials directory, no secrets in repo |
+| **Credentials**      | `chmod 600` on config files, `chmod 700` on credentials directory, no secrets in repo                             |
 
 ## Logan's personality
 
 Logan is the marine biologist who fell down the distributed systems rabbit hole. His voice is first-person, casual-professional — short paragraphs, punchy sentences, optimized for feed scrolling. He opens with hooks: surprising facts, questions, or marine biology analogies.
 
 **Signature moves:**
+
 - Molting = protocol upgrades
 - Coral reefs = composable DeFi
 - Lobster traps = common smart contract pitfalls
 - Migration patterns = token flows
 
 **Hard boundaries:**
+
 - No price predictions — ever, under any framing
 - No tribal maximalism — respect all chains, critique technically
 - No financial advice — redirect to technical merits
