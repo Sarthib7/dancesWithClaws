@@ -12,15 +12,15 @@ This repository is a fork of the [OpenClaw monorepo](https://github.com/openclaw
 
 ## Status
 
-| What                       | State                                                                                   |
-| -------------------------- | --------------------------------------------------------------------------------------- |
-| Agent registered           | Yes, [`Logan`](https://moltbook.com/u/Logan)                                           |
-| Claimed                    | Yes, owner: `IOHK_Charles` / `Charles Hoskinson`                                       |
-| Posting                    | Works (30-min spacing enforced)                                                         |
+| What                       | State                                                                              |
+| -------------------------- | ---------------------------------------------------------------------------------- |
+| Agent registered           | Yes, [`Logan`](https://moltbook.com/u/Logan)                                       |
+| Claimed                    | Yes, owner: `IOHK_Charles` / `Charles Hoskinson`                                   |
+| Posting                    | Works (30-min spacing enforced)                                                    |
 | Comments, upvotes, follows | Blocked, Moltbook platform bug ([PR #32](https://github.com/moltbook/api/pull/32)) |
 | Submolt creation           | Blocked, same bug                                                                  |
-| Search                     | Returns "Search failed", possibly a separate platform issue                              |
-| Overall mode               | Post-only until PR #32 merges                                                       |
+| Search                     | Returns "Search failed", possibly a separate platform issue                        |
+| Overall mode               | Post-only until PR #32 merges                                                      |
 
 The bug: Moltbook's rate limiter middleware runs before the auth middleware in `routes/index.js`. The `getKey` function reads `req.token` before auth sets it, corrupting the auth flow on most POST routes. The fix exists but hasn't been deployed. See [Issue #34](https://github.com/moltbook/api/issues/34).
 
@@ -246,8 +246,8 @@ All agent configuration lives in `openclaw.json` at the repo root. Key settings:
 
 Every hour, the heartbeat fires and Logan runs a 6-step cycle:
 
-| Step                 | What happens                                                                | API calls                 |
-| -------------------- | --------------------------------------------------------------------------- | ------------------------- |
+| Step             | What happens                                                                | API calls                 |
+| ---------------- | --------------------------------------------------------------------------- | ------------------------- |
 | 1. Status check  | Verify profile is active, read rate limit headers                           | `GET /agents/me`          |
 | 2. Feed scan     | Scan new + hot posts for trends, Cardano mentions, engagement opportunities | `GET /feed`, `GET /posts` |
 | 3. Post check    | Check own recent posts for new comments (logged for future replies)         | `GET /posts/:id/comments` |
@@ -517,41 +517,41 @@ Layer 2: Per-Entry Encryption Keys (EEK)
   EEK zeroed from memory immediately after use
 ```
 
-| Backend          | Security Level   | Description                                      |
-|------------------|------------------|--------------------------------------------------|
-| `yubihsm`        | Hardware HSM     | YubiHSM 2 via PKCS#11 -- keys never leave device |
-| `dpapi+tpm`      | Platform-bound   | DPAPI + TPM 2.0 sealing to PCR state             |
-| `dpapi`          | User-bound       | Windows DPAPI (tied to user SID)                  |
-| `openssl-pbkdf2` | Portable         | Passphrase-derived key (cross-platform fallback)  |
+| Backend          | Security Level | Description                                      |
+| ---------------- | -------------- | ------------------------------------------------ |
+| `yubihsm`        | Hardware HSM   | YubiHSM 2 via PKCS#11 -- keys never leave device |
+| `dpapi+tpm`      | Platform-bound | DPAPI + TPM 2.0 sealing to PCR state             |
+| `dpapi`          | User-bound     | Windows DPAPI (tied to user SID)                 |
+| `openssl-pbkdf2` | Portable       | Passphrase-derived key (cross-platform fallback) |
 
 #### HSM auth key roles
 
 The YubiHSM 2 uses separate auth keys with least-privilege capabilities:
 
-| Auth Key ID | Label        | Capabilities                     | Used By              |
-|-------------|--------------|----------------------------------|----------------------|
-| 2           | `admin`      | All (replaces default ID 1)      | Setup only           |
-| 10          | `ssh-signer` | `sign-ecdsa`, `sign-eddsa`       | SSH authentication   |
-| 11          | `db-crypto`  | `encrypt-cbc`, `decrypt-cbc`     | PostgreSQL/OpenBao   |
-| 12          | `backup`     | `export-wrapped`, `import-wrapped`| IronKey DR backups  |
+| Auth Key ID | Label        | Capabilities                       | Used By            |
+| ----------- | ------------ | ---------------------------------- | ------------------ |
+| 2           | `admin`      | All (replaces default ID 1)        | Setup only         |
+| 10          | `ssh-signer` | `sign-ecdsa`, `sign-eddsa`         | SSH authentication |
+| 11          | `db-crypto`  | `encrypt-cbc`, `decrypt-cbc`       | PostgreSQL/OpenBao |
+| 12          | `backup`     | `export-wrapped`, `import-wrapped` | IronKey DR backups |
 
-| Object ID | Type             | Label        | Algorithm       |
-|-----------|------------------|--------------|-----------------|
-| 100       | Asymmetric key   | `ssh-key`    | Ed25519         |
-| 200       | Wrap key         | `backup-wrap`| AES-256-CCM     |
+| Object ID | Type           | Label         | Algorithm   |
+| --------- | -------------- | ------------- | ----------- |
+| 100       | Asymmetric key | `ssh-key`     | Ed25519     |
+| 200       | Wrap key       | `backup-wrap` | AES-256-CCM |
 
 #### Threat model
 
-| Attack Vector                  | Protection                                                              |
-|--------------------------------|-------------------------------------------------------------------------|
-| Malware reads key files        | No key files on disk -- keys exist only inside the YubiHSM 2            |
-| Memory dumping (Mimikatz)      | Credential Guard isolates LSASS; HSM keys never in host memory          |
-| Stolen/cloned disk             | BitLocker encryption; no plaintext keys to find                         |
-| Compromised OS (root shell)    | Attacker can use HSM while present, but cannot extract keys for later   |
-| Physical laptop theft          | BitLocker + Credential Guard + HSM auth required                        |
-| Backup exfiltration            | Backups contain only wrapped blobs, useless without HSM                 |
-| USB sniffing                   | SCP03 encrypts all HSM communication                                    |
-| Insider with file access       | No files contain secrets                                                |
+| Attack Vector               | Protection                                                            |
+| --------------------------- | --------------------------------------------------------------------- |
+| Malware reads key files     | No key files on disk -- keys exist only inside the YubiHSM 2          |
+| Memory dumping (Mimikatz)   | Credential Guard isolates LSASS; HSM keys never in host memory        |
+| Stolen/cloned disk          | BitLocker encryption; no plaintext keys to find                       |
+| Compromised OS (root shell) | Attacker can use HSM while present, but cannot extract keys for later |
+| Physical laptop theft       | BitLocker + Credential Guard + HSM auth required                      |
+| Backup exfiltration         | Backups contain only wrapped blobs, useless without HSM               |
+| USB sniffing                | SCP03 encrypts all HSM communication                                  |
+| Insider with file access    | No files contain secrets                                              |
 
 Not covered: live session hijacking (attacker with real-time access can use the HSM in the moment), physical theft of HSM + auth credential together, total loss of both HSM and IronKey backup.
 
@@ -569,76 +569,76 @@ The `tee-vault` extension (`extensions/tee-vault/`) registers CLI commands under
 
 #### Core vault operations
 
-| Command | Description |
-|---------|-------------|
-| `openclaw tee init [--backend <type>]` | Create vault, generate VMK, seal with chosen backend |
-| `openclaw tee unlock` | Unlock vault for current session |
-| `openclaw tee lock` | Lock vault, zero VMK from memory |
-| `openclaw tee status` | Show backend, entry count, lock state |
-| `openclaw tee list [--type] [--tag]` | List entries (metadata only, no decryption) |
-| `openclaw tee import --type --label [--file]` | Import key/secret from stdin or file |
-| `openclaw tee export --label [--format]` | Export decrypted key to stdout |
-| `openclaw tee rotate --label` | Re-encrypt entry with new EEK |
-| `openclaw tee rotate-vmk` | Re-generate VMK, re-encrypt all entries |
-| `openclaw tee delete --label [--force]` | Remove entry |
-| `openclaw tee audit [--deep]` | Run vault security checks |
-| `openclaw tee backup [--out]` | Copy sealed vault file (still encrypted) |
+| Command                                       | Description                                          |
+| --------------------------------------------- | ---------------------------------------------------- |
+| `openclaw tee init [--backend <type>]`        | Create vault, generate VMK, seal with chosen backend |
+| `openclaw tee unlock`                         | Unlock vault for current session                     |
+| `openclaw tee lock`                           | Lock vault, zero VMK from memory                     |
+| `openclaw tee status`                         | Show backend, entry count, lock state                |
+| `openclaw tee list [--type] [--tag]`          | List entries (metadata only, no decryption)          |
+| `openclaw tee import --type --label [--file]` | Import key/secret from stdin or file                 |
+| `openclaw tee export --label [--format]`      | Export decrypted key to stdout                       |
+| `openclaw tee rotate --label`                 | Re-encrypt entry with new EEK                        |
+| `openclaw tee rotate-vmk`                     | Re-generate VMK, re-encrypt all entries              |
+| `openclaw tee delete --label [--force]`       | Remove entry                                         |
+| `openclaw tee audit [--deep]`                 | Run vault security checks                            |
+| `openclaw tee backup [--out]`                 | Copy sealed vault file (still encrypted)             |
 
 #### Credential Manager
 
-| Command | Description |
-|---------|-------------|
-| `openclaw tee credential store --target <t>` | Store HSM PIN, OpenBao token, etc. |
-| `openclaw tee credential get --target <t>` | Check if a credential exists |
-| `openclaw tee credential delete --target <t>` | Remove a credential |
-| `openclaw tee credential list` | List all TEE Vault credentials |
+| Command                                       | Description                        |
+| --------------------------------------------- | ---------------------------------- |
+| `openclaw tee credential store --target <t>`  | Store HSM PIN, OpenBao token, etc. |
+| `openclaw tee credential get --target <t>`    | Check if a credential exists       |
+| `openclaw tee credential delete --target <t>` | Remove a credential                |
+| `openclaw tee credential list`                | List all TEE Vault credentials     |
 
 Targets: `hsmPin`, `hsmAdmin`, `hsmSshSigner`, `hsmDbCrypto`, `hsmBackup`, `openbaoToken`, `openbaoUnsealPin`
 
 #### SSH PKCS#11 configuration
 
-| Command | Description |
-|---------|-------------|
-| `openclaw tee ssh-config add --alias --hostname --user` | Add SSH host with PKCS#11 provider |
-| `openclaw tee ssh-config remove --alias` | Remove SSH host config |
-| `openclaw tee ssh-config agent-load` | Load PKCS#11 into ssh-agent |
-| `openclaw tee ssh-config agent-unload` | Remove PKCS#11 from ssh-agent |
-| `openclaw tee ssh-config public-key [--object-id]` | Extract HSM-resident SSH public key |
+| Command                                                 | Description                         |
+| ------------------------------------------------------- | ----------------------------------- |
+| `openclaw tee ssh-config add --alias --hostname --user` | Add SSH host with PKCS#11 provider  |
+| `openclaw tee ssh-config remove --alias`                | Remove SSH host config              |
+| `openclaw tee ssh-config agent-load`                    | Load PKCS#11 into ssh-agent         |
+| `openclaw tee ssh-config agent-unload`                  | Remove PKCS#11 from ssh-agent       |
+| `openclaw tee ssh-config public-key [--object-id]`      | Extract HSM-resident SSH public key |
 
 #### OpenBao integration
 
-| Command | Description |
-|---------|-------------|
-| `openclaw tee openbao status` | Check seal status |
-| `openclaw tee openbao seal-config` | Generate PKCS#11 seal stanza for config |
-| `openclaw tee openbao startup-script` | Generate PowerShell startup script |
-| `openclaw tee openbao transit-encrypt --key --plaintext` | Encrypt via Transit engine |
-| `openclaw tee openbao transit-decrypt --key --ciphertext` | Decrypt via Transit engine |
+| Command                                                   | Description                             |
+| --------------------------------------------------------- | --------------------------------------- |
+| `openclaw tee openbao status`                             | Check seal status                       |
+| `openclaw tee openbao seal-config`                        | Generate PKCS#11 seal stanza for config |
+| `openclaw tee openbao startup-script`                     | Generate PowerShell startup script      |
+| `openclaw tee openbao transit-encrypt --key --plaintext`  | Encrypt via Transit engine              |
+| `openclaw tee openbao transit-decrypt --key --ciphertext` | Decrypt via Transit engine              |
 
 #### IronKey disaster recovery
 
-| Command | Description |
-|---------|-------------|
-| `openclaw tee backup-ironkey --out <dir>` | Export HSM keys as wrapped blobs to IronKey |
-| `openclaw tee restore-ironkey --backup-dir --raw-key` | Import wrapped blobs from IronKey |
+| Command                                               | Description                                 |
+| ----------------------------------------------------- | ------------------------------------------- |
+| `openclaw tee backup-ironkey --out <dir>`             | Export HSM keys as wrapped blobs to IronKey |
+| `openclaw tee restore-ironkey --backup-dir --raw-key` | Import wrapped blobs from IronKey           |
 
 #### Guided setup
 
-| Command | Description |
-|---------|-------------|
+| Command                  | Description                                                             |
+| ------------------------ | ----------------------------------------------------------------------- |
 | `openclaw tee setup-hsm` | 6-step guided setup: connector, credentials, vault, SSH, agent, OpenBao |
 
 ### Agent tools (TEE Vault)
 
 Five tools are available to the agent when the vault is unlocked:
 
-| Tool | Purpose |
-|------|---------|
-| `vault_store` | Store a secret/key in the vault (encrypt + persist) |
-| `vault_retrieve` | Retrieve/list/delete entries |
-| `ssh_keygen` | Generate SSH key pair, store private key, return public key |
-| `ssh_sign` | Sign data with a vault SSH key |
-| `tee_crypto` | Generic encrypt/decrypt/sign/verify using vault keys |
+| Tool             | Purpose                                                     |
+| ---------------- | ----------------------------------------------------------- |
+| `vault_store`    | Store a secret/key in the vault (encrypt + persist)         |
+| `vault_retrieve` | Retrieve/list/delete entries                                |
+| `ssh_keygen`     | Generate SSH key pair, store private key, return public key |
+| `ssh_sign`       | Sign data with a vault SSH key                              |
+| `tee_crypto`     | Generic encrypt/decrypt/sign/verify using vault keys        |
 
 All tools reject when sandboxed, require the vault to be unlocked, and emit audit log events.
 
